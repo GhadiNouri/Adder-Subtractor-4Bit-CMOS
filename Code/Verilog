@@ -1,0 +1,115 @@
+Full Adder/ Subtracter Code:
+
+module xor1(Y,a,M);
+output Y;
+input M,a;
+assign Y=a^M;
+endmodule
+
+module nand3(Y,A,B,C);
+output Y;
+input A,B,C;
+wire a,b;
+supply0 gnd;
+supply1 vdd;
+nmos n1(a,gnd,A);
+nmos n2(b,a,B);
+nmos n3(Y,b,C);
+pmos p1(Y,vdd,A);
+pmos p2(Y,vdd,B);
+pmos p3(Y,vdd,C);
+endmodule
+
+module nand2(Y,A,B);
+output Y;
+input A,B;
+wire a;
+supply0 gnd;
+supply1 vdd;
+nmos n1(a,gnd,A);
+nmos n2(Y,a,B);
+pmos p1(Y,vdd,A);
+pmos p2(Y,vdd,B);
+endmodule
+
+module nor3(Y,A,B,C);
+output Y;
+input A,B,C;
+wire a,b;
+supply0 gnd;
+supply1 vdd;
+pmos p1(a,vdd,A);
+pmos p2(b,a,B);
+pmos p3(Y,b,C);
+nmos n1(Y,gnd,A);
+nmos n2(Y,gnd,B);
+nmos n3(Y,gnd,C);
+endmodule
+
+module nor4(Y,A,B,C,D);
+output Y;
+input A,B,C,D;
+supply0 gnd;
+supply1 vdd;
+wire a,b,c;
+pmos p1(a,vdd,A);
+pmos p2(b,a,B);
+pmos p3(c,b,C);
+pmos p4(Y,c,D);
+nmos n1(Y,gnd,A);
+nmos n2(Y,gnd,B);
+nmos n3(Y,gnd,C);
+nmos n4(Y,gnd,D);
+endmodule
+
+module inv(Y,A);
+output Y;
+input A;
+supply0 gnd;
+supply1 vdd;
+pmos p1(Y,vdd,A);
+nmos n1(Y,gnd,A);
+endmodule
+
+module Faddsub(sum, c_out, a, x, c_in);
+output sum, c_out;
+input a,x,c_in;
+wire b,c,d,e,f,g,h,j,k,L,o,p,q,s,t,u,a_i,c_ini,z_i,z;
+xor1 xr(z, x, c_in); //xor gate
+inv ia(a_i, a);
+inv ix(z_i,z); //~z
+inv ic_in(c_ini, c_in);
+
+nand3 n31(b, a_i,z_i, c_in); //first nand -sum
+nand3 n32(c, a_i,z, c_ini); //second nand â€“ sum
+nand3 n33(d, a,z_i, c_ini); //third nand â€“ sum
+nand3 n34(e, a, z, c_in); // fourth nandâ€“ sum
+inv in1(f, b); //inverter first nandâ€“ sum
+inv in2(g, c); //inverter second nandâ€“ sum
+inv in3(h,d); //inverter third nandâ€“ sum
+inv in4(j, e); //inverter fourth nand â€“ sum
+nor4 no(k, f,g,h,j); //4nor input â€“ sum
+inv inor(sum, k); //sum output
+
+nand2 n21(L, a, z); //first nandâ€“ c_out
+nand2 n22(o, a, c_in); //second nandâ€“ c_out
+nand2 n23(p, z, c_in); //third nand â€“ c_out
+inv inn1(q, L); //inverter first nand â€“ c_out
+inv inn2(s, o); // inverter second nand â€“ c_out
+inv inn3(t, p); //inverter third nand c_out
+nor3 nr(u, q, s, t); //3nor input â€“ c_out
+inv inr(c_out, u); //inverter nor â€“ c_out
+endmodule
+
+//4 bit add/sub
+module fouraddsub(sum, c_out, a, x, c_in);
+input [3:0] a,x;
+input c_in;
+output [3:0] sum;
+output c_out;
+wire w1, w2, w3;
+Faddsub fas0(sum[0], w1, a[0], x[0], c_in);
+Faddsub fas1(sum[1], w2, a[1], x[1],  w1);
+Faddsub fas2(sum[2], w3, a[2], x[2],  w2);
+Faddsub fas3(sum[3], c_out, a[3], x[3], w3);
+Endmodule
